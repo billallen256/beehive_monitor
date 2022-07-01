@@ -9,12 +9,14 @@
 #include "ssid.h"
 #include "temperature.h"
 
+const unsigned int sleep_seconds = 10 * 60;
+
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 const unsigned int statsdPort = 8125;
 int status = WL_IDLE_STATUS;
 
-IPAddress server(192, 168, 1, 121);  // using IP instead of DNS
+IPAddress server(192, 168, 1, 117);  // using IP instead of DNS
 
 WiFiUDP udpClient;
 
@@ -55,8 +57,6 @@ void send_temperature_and_humidity() {
   
   send(humidity_buffer);
   send(temperature_buffer);
-  
-  deep_sleep(10*60);
 }
 
 void setup() {
@@ -79,6 +79,7 @@ void setup() {
 
   setup_temperature();
   send_temperature_and_humidity();
+  deep_sleep(sleep_seconds);
 }
 
 // Note: We are using ESP32's deep sleep

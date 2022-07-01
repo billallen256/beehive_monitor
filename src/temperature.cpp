@@ -1,14 +1,14 @@
 #include "temperature.h"
 
-// Create the ADT7410 temperature sensor object
-Adafruit_ADT7410 tempsensor = Adafruit_ADT7410();
+// Create the AHT20 temperature sensor object
+Adafruit_AHTX0 tempsensor = Adafruit_AHTX0();
 
 void setup_temperature()
 {
   /* Initialise the ADT7410 */
   if (!tempsensor.begin())
   {
-    Println("Couldn't find ADT7410!");
+    Println("Couldn't find AHT20!");
     while (1)
       ;
   }

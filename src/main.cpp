@@ -35,6 +35,7 @@ void printWifiStatus() {
   Serial.println(" dBm");
 }
 
+char humidity_buffer[GAUGE_BUFFER_SIZE];
 char temperature_buffer[GAUGE_BUFFER_SIZE];
 
 void send(char *msg) {
@@ -44,10 +45,17 @@ void send(char *msg) {
   udpClient.endPacket();
 }
 
-void send_temperature() {
-  float temperature = tempsensor.readTempC();
-  Gauge_str(temperature_buffer, "esp32.temp", (int)(temperature*100));
+void send_temperature_and_humidity() {
+  sensors_event_t humidity_event;
+  sensors_event_t temperature_event;
+  tempsensor.getEvent(&humidity_event, &temperature_event);
+  
+  Gauge_str(humidity_buffer, "hive.humid", (int)(humidity_event.relative_humidity*100));
+  Gauge_str(temperature_buffer, "hive.temp", (int)(temperature_event.temperature*100));
+  
+  send(humidity_buffer);
   send(temperature_buffer);
+  
   deep_sleep(10*60);
 }
 
@@ -70,7 +78,7 @@ void setup() {
   printWifiStatus();
 
   setup_temperature();
-  send_temperature();
+  send_temperature_and_humidity();
 }
 
 // Note: We are using ESP32's deep sleep

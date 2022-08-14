@@ -1,41 +1,20 @@
 // based on https://www.alejandrowurts.com/projects/esp32-wifi-udp/
 
-#include <WiFi.h>
 #include <WiFiUdp.h>
 
 #include "gauge.h"
 #include "serial.h"
 #include "sleep.h"
-#include "ssid.h"
 #include "temperature.h"
+#include "setup_wifi.h"
 
 const unsigned int sleep_seconds = 10 * 60;
-
-const char* ssid = WIFI_SSID;
-const char* password = WIFI_PASSWORD;
 const unsigned int statsdPort = 8125;
 int status = WL_IDLE_STATUS;
 
 IPAddress server(192, 168, 1, 117);  // using IP instead of DNS
 
 WiFiUDP udpClient;
-
-void printWifiStatus() {
-  // print the SSID of the network you're attached to:
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
-
-  // print your board's IP address:
-  IPAddress ip = WiFi.localIP();
-  Serial.print("IP Address: ");
-  Serial.println(ip);
-
-  // print the received signal strength:
-  long rssi = WiFi.RSSI();
-  Serial.print("signal strength (RSSI):");
-  Serial.print(rssi);
-  Serial.println(" dBm");
-}
 
 char humidity_buffer[GAUGE_BUFFER_SIZE];
 char temperature_buffer[GAUGE_BUFFER_SIZE];
@@ -61,22 +40,7 @@ void send_temperature_and_humidity() {
 
 void setup() {
   setup_serial();
-
-  // attempt to connect to Wifi network:
-  Serial.print("Attempting to connect to SSID: ");
-  Serial.println(ssid);
-
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.println("Connected to WiFi");
-  printWifiStatus();
-
+  setup_wifi();
   setup_temperature();
   send_temperature_and_humidity();
   deep_sleep(sleep_seconds);

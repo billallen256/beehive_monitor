@@ -9,8 +9,8 @@ void setup_temperature()
   if (!tempsensor.begin())
   {
     Println("Couldn't find AHT20!");
-    while (1)
-      ;
+    delay(5000);
+    ESP.restart();
   }
  
   // sensor takes 250 ms to get first readings

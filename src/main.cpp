@@ -3,6 +3,7 @@
 #include <WiFiUdp.h>
 
 #include "gauge.h"
+#include "power.h"
 #include "serial.h"
 #include "sleep.h"
 #include "temperature.h"
@@ -18,6 +19,8 @@ WiFiUDP udpClient;
 
 char humidity_buffer[GAUGE_BUFFER_SIZE];
 char temperature_buffer[GAUGE_BUFFER_SIZE];
+char voltage_buffer[GAUGE_BUFFER_SIZE];
+char boot_count_buffer[GAUGE_BUFFER_SIZE];
 
 void send(char *msg) {
   Serial.printf("Sending: %s\n", msg);
@@ -38,18 +41,36 @@ void send_temperature_and_humidity() {
   send(temperature_buffer);
 }
 
+void send_voltage(uint16_t voltage) {
+  Gauge_str(voltage_buffer, "hive.voltage", (int)voltage);
+  send(voltage_buffer);
+}
+
+void send_boot_count() {
+  Gauge_str(boot_count_buffer, "hive.boots", (int)get_boot_count());
+  send(boot_count_buffer);
+}
+
 void setup() {
+  reboot_after_boot_count(144);
+  increment_boot_count();
+
+  // Get the voltage before wifi is enabled
+  // because they both use GPIO pin 13.
+  uint16_t voltage = get_voltage();
+
   setup_serial();
   setup_wifi();
   setup_temperature();
   send_temperature_and_humidity();
+  send_voltage(voltage);
+  send_boot_count();
   deep_sleep(sleep_seconds);
 }
 
 // Note: We are using ESP32's deep sleep
-// which calls setup each time we wake up
-// so there's no need to use loop. Every
-// wakeup is a new day.
+// which calls setup() each time we wake up
+// so there's no need to use loop.
 void loop() {
   
 }

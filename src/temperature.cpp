@@ -18,3 +18,11 @@ void setup_temperature()
 
   Println("setup_temperature() complete");
 }
+
+void populate_temperature_and_humidity() {
+  sensors_event_t humidity_event;
+  sensors_event_t temperature_event;
+  tempsensor.getEvent(&humidity_event, &temperature_event);
+  readings.humidity = humidity_event.relative_humidity;
+  readings.temperature = temperature_event.temperature;
+}

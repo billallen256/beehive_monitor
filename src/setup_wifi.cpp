@@ -1,5 +1,8 @@
 #include "setup_wifi.h"
 
+Readings* readingsToSend;
+unsigned int secondsToSleep;
+
 void printWifiStatus() {
   // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
@@ -17,28 +20,45 @@ void printWifiStatus() {
   Serial.println(" dBm");
 }
 
-void setup_wifi() {
-  const char* ssid = WIFI_SSID;
-  const char* password = WIFI_PASSWORD;
-  
+void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
+  Serial.println("Connected to AP successfully!");
+}
+
+void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  print_readings();
+  send_readings();
+  delay(1000);
+  deep_sleep(::secondsToSleep);
+}
+
+void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
+  Serial.println("Disconnected from WiFi access point");
+  Serial.print("WiFi lost connection. Reason: ");
+  Serial.println(info.disconnected.reason);
+  Serial.println("Trying to Reconnect");
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+}
+
+// based on https://randomnerdtutorials.com/solved-reconnect-esp32-to-wifi/
+void setup_wifi(unsigned int sleep_seconds) {
+  ::secondsToSleep = sleep_seconds;
+
+  print_readings();
+
   // attempt to connect to Wifi network:
   Serial.print("Attempting to connect to SSID: ");
-  Serial.println(ssid);
+  Serial.println(WIFI_SSID);
+  WiFi.disconnect(true);
+  delay(1000);
 
-  WiFi.begin(ssid, password);
+  WiFi.onEvent(WiFiStationConnected, SYSTEM_EVENT_STA_CONNECTED);
+  WiFi.onEvent(WiFiGotIP, SYSTEM_EVENT_STA_GOT_IP);
+  WiFi.onEvent(WiFiStationDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
 
-  for (int i = 0; i < 1000 && WiFi.status() != WL_CONNECTED; ++i) {
-      delay(500);
-      Serial.print(".");
-  }
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.print("Could not connect to wifi");
-    delay(5000);
-    ESP.restart();
-  }
-
-  Serial.println("");
-  Serial.println("Connected to WiFi");
-  printWifiStatus();
+  Serial.println("Waiting for wifi");
 }

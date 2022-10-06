@@ -3,8 +3,10 @@
 
 #include <Arduino.h>
 
+#include "readings.h"
+
 #define POWER_PIN 13
 
-uint16_t get_voltage();
+void populate_voltage();
 
 #endif

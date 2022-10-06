@@ -3,8 +3,11 @@
 
 #include <WiFi.h>
 
+#include "readings.h"
+#include "sleep.h"
 #include "ssid.h"
+#include "statsd.h"
 
-void setup_wifi();
+void setup_wifi(unsigned int);
 
 #endif

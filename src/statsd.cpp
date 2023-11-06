@@ -2,7 +2,7 @@
 
 const unsigned int statsdPort = 8125;
 
-IPAddress server(192, 168, 1, 117);  // using IP instead of DNS
+IPAddress server(192, 168, 1, 116);  // using IP instead of DNS
 
 WiFiUDP udpClient;
 
@@ -19,9 +19,9 @@ void send(char *msg) {
 }
 
 void send_readings() {
-  Gauge_str(humidity_buffer, "hive.humid", (int)(readings.humidity*100));
-  Gauge_str(temperature_buffer, "hive.temp", (int)(readings.temperature*100));
-  Gauge_str(voltage_buffer, "hive.voltage", (int)readings.voltage);
+  Gauge_str(humidity_buffer, "garage.humid", (int)(readings.humidity*100));
+  Gauge_str(temperature_buffer, "garage.temp", (int)(readings.temperature*100));
+  Gauge_str(voltage_buffer, "garage.voltage", (int)readings.voltage);
 
   send(humidity_buffer);
   send(temperature_buffer);

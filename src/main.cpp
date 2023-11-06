@@ -7,8 +7,7 @@
 #include "temperature.h"
 #include "setup_wifi.h"
 
-const unsigned int sleep_seconds = 10 * 60;
-//const unsigned int sleep_seconds = 20;
+unsigned int const sleep_seconds = 10 * 60;
 
 void setup() {
   setup_serial();
